@@ -92,7 +92,7 @@ getProductById(id) {
     const product = this.products.find(p => p.id === productid);
     if (!product) {
         console.error("Not found");
-        return 'User not found';
+        return 'Product not found';
     }
     else {
         console.log(`Product found: ${JSON.stringify(product, null, '/t')}`)
