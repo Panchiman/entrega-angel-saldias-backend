@@ -1,19 +1,14 @@
 import express from 'express';
+import routerProducts from './routes/products.router.js';
+import routerCart from './routes/carts.router.js';
 
-import ProductManager from './classes/productManager.js';
-
-const productManager = new ProductManager();
 
 const app = express();
 
-app.get('/products',async (req, res) => {
-    const products = await productManager.getProducts(req.query.limit);
-    res.send(products);
-});
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-app.get('/products/:pid',async (req, res) => {
-    const producto = await productManager.getProductById(req.params.pid);
-    res.send(producto);
-});
+app.use('/products', routerProducts)
+app.use('/carts/', routerCart)
 
 app.listen(8080, () => {console.log('Server started on port 8080')});

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import {v4 as uuidv4} from 'uuid';
 
 
 export default class ProductManager {
@@ -14,66 +15,53 @@ export default class ProductManager {
             this.products = JSON.parse(fileContent);
         }
         else {
-            fs.writeFileSync(this.path, JSON.stringify(this.products, null, '/t'), 'utf-8');
+            fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf-8');
 
         }
     } 
 
-    returnId() {
-        //Agregue esto para decidir la id del producto ya que con ahora que se pueden eliminar productos con el contador podia darse que se repitieran ids
-        if (this.products.length == 0) {
-            return 1;
-        }
-        else {
-            let maxId = null;
-            this.products.forEach(p => {
-                if (!maxId || p.id > maxId) {
-                    maxId = p.id;
-                }
-            });
-            return maxId+1;
-        }
-    }
     addProduct(product) {
 // Valida que todos los campos esten y si coincide el codigo con uno ya existente tira un console.error con el error pertinente, originalmente iba a usar throw new Error pero detenia la ejecucion del codigo en su totalidad y supuse que no era lo que se queria
 // Puse los errores en ingles porque como en una parte de la consigna pedia devolver un "not found" supuse que la idea era que el codigo estuviera en ingles    
     
-    this.checkFile();
-    
-    if (!product.title) {
-            console.error("The title is required");
-        }
-        else if (!product.description) {
-            console.error("Description is required");
-        }
-        else if (!product.price) {
-            console.error("Price is required");
-        }
-        else if (!product.thumbnail) {
-            console.error("The image path is required");
-        }
-        else if (!product.code) {
-            console.error("The product code is required");
-        }
-        else if (!product.stock) {
-            console.error("The product stock is required");
-        }
-        else if (this.products.some(p => p.code === product.code)) {
-            console.error("A product with the same code already exists");
-        }
-        else{
-            // Agrega el producto con un id autoincrementable
-            this.products.push({
-                id: this.returnId(),
-                title: product.title,
-                description: product.description,
-                price: product.price,
-                thumbnail: product.thumbnail,
-                code: product.code,
-                stock: product.stock,
-            });
-            fs.writeFileSync(this.path, JSON.stringify(this.products, null, '/t'), 'utf-8');
-        }
+        this.checkFile();
+        
+        if (!product.title) {
+                console.error("The title is required");
+            }
+            else if (!product.description) {
+                console.error("Description is required");
+            }
+            else if (!product.price) {
+                console.error("Price is required");
+            }
+            else if (!product.category) {
+                console.error("The product category is required");
+            }
+            else if (!product.code) {
+                console.error("The product code is required");
+            }
+            else if (!product.stock) {
+                console.error("The product stock is required");
+            }
+            else if (this.products.some(p => p.code === product.code)) {
+                console.error("A product with the same code already exists");
+            }
+            else{
+                this.products.push({
+                    id: uuidv4(),
+                    title: product.title,
+                    description: product.description,
+                    price: product.price,
+                    category: product.category,
+                    thumbnail: product.thumbnail ?? "Sin imagen",
+                    status: product.status ?? true,
+                    //como decia que el status predeterminado era true, no lo hice un campo obligatorio, sino no tendria sentido ponerle un valor por defecto.
+                    code: product.code,
+                    stock: product.stock,
+                });
+                fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf-8');
+            }
     }
 getProducts(limit){
     this.checkFile();
@@ -88,8 +76,7 @@ getProducts(limit){
 }
 getProductById(id) {
     this.checkFile();
-    const productid = parseInt(id);
-    const product = this.products.find(p => p.id === productid);
+    const product = this.products.find(p => p.id === id);
     if (!product) {
         console.error("Not found");
         return 'Product not found';
@@ -109,7 +96,7 @@ deleteProduct(id) {
     else {
         this.products.splice(productIndex, 1);
         console.log(`Product deleted`)
-        fs.writeFileSync(this.path, JSON.stringify(this.products, null, '/t'), 'utf-8');
+        fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf-8');
     }
 }
 updateProduct(id,product) {
@@ -128,7 +115,7 @@ updateProduct(id,product) {
             code: product.code ?? this.products[productIndex].code,
             stock: product.stock ?? this.products[productIndex].stock,
         }
-        fs.writeFileSync(this.path, JSON.stringify(this.products, null, '/t'), 'utf-8');
+        fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf-8');
         console.log("Product updated")
     }
 }
