@@ -3,6 +3,7 @@ import ProductManager from '../classes/productManager.class.js';
 
 const router = Router();
 
+
 const productManager = new ProductManager();
 
 router.get('/', (req, res) => {
@@ -20,6 +21,7 @@ router.post("/", async (req, res) => {
     const product = req.body;
     
     productManager.addProduct(product);
+    req.socketServer.emit('products', productManager.getProducts());
     res.send({ status: "success" });
 });
 
@@ -27,12 +29,14 @@ router.put("/:pid",  (req, res) => {
     const productId = req.params.pid;
     const product = req.body;
     productManager.updateProduct(productId, product);
+    req.socketServer.emit('products', productManager.getProducts());
     res.send({ status: "success" });
 })
 
 router.delete("/:pid", (req, res) => {
     const productId = req.params.pid;
     productManager.deleteProduct(productId);
+    req.socketServer.emit('products', productManager.getProducts());
     res.send({ status: "success" });
 })
 
